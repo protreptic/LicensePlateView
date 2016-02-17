@@ -60,21 +60,24 @@ public class LicensePlateView extends View {
     private Typeface typeface;
 
     @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), (int) (MeasureSpec.getSize(widthMeasureSpec) * 0.2153f));
+    }
+
+    @Override
     protected void onDraw(Canvas canvas) {
         float textSize1, textSize2, textSize3;
 
         mWidth = getWidth();
         mHeight = mWidth * 0.2153f;
 
-        // frame
         drawFrame(canvas);
-        // holes
         drawHoles(canvas);
 
         // text
         textSize1 = mHeight * 0.85f;
-        textSize2 = mHeight * 0.95f;
-        textSize3 = mHeight * 0.65f;
+        textSize2 = mHeight * 0.92f;
+        textSize3 = mHeight * 0.85f;
 
         paint.setTextSize(textSize2);
         paint.setStyle(Paint.Style.FILL);
@@ -88,10 +91,10 @@ public class LicensePlateView extends View {
         canvas.drawText("34", (mWidth - (mWidth * 0.21f)), (mHeight - (mHeight * 0.3f)), paint);
 
         //
-        paint.setTextSize(textSize3);
+        paint.setTextSize(textSize1);
         paint.setStyle(Paint.Style.FILL);
-
-        canvas.drawText("RUS", (mWidth - (mWidth * 0.21f)), (mHeight - (mHeight * 0.2f)), paint);
+        paint.setTypeface(typeface);
+        canvas.drawText("RUS", 10, 10, paint);
 
         // draw flag
         drawFlag(canvas);
@@ -107,9 +110,9 @@ public class LicensePlateView extends View {
         outerBoundsPadding = 0.0f;
         outerBounds.set(outerBoundsPadding, outerBoundsPadding, (mWidth - outerBoundsPadding), (mHeight - outerBoundsPadding));
 
-        paint.setStyle(Paint.Style.FILL);
+        paint.setStyle(Paint.Style.FILL_AND_STROKE);
         paint.setColor(Color.WHITE);
-        paint.setStrokeWidth(0.0f);
+        paint.setStrokeWidth(0);
         canvas.drawRoundRect(outerBounds, cornerRadius, cornerRadius, paint);
 
         // inner rect
@@ -132,8 +135,8 @@ public class LicensePlateView extends View {
         canvas.drawRoundRect(innerBounds2, cornerRadius, cornerRadius, paint);
 
         paint.setStyle(Paint.Style.FILL);
-        canvas.drawCircle(mWidth - (mWidth * 0.25f), innerBoundsPadding + 5.0f, 5.0f, paint);
-        canvas.drawCircle(mWidth - (mWidth * 0.25f), (mHeight - innerBoundsPadding - 5.0f), 5.0f, paint);
+        canvas.drawCircle(mWidth - (mWidth * 0.25f), (innerBoundsPadding * 1.75f), innerBoundsPadding, paint);
+        canvas.drawCircle(mWidth - (mWidth * 0.25f), (mHeight - (innerBoundsPadding * 1.75f)), innerBoundsPadding, paint);
     }
 
     private void drawHoles(Canvas canvas) {

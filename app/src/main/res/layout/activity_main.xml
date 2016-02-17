@@ -4,10 +4,22 @@
               android:layout_height="match_parent"
               android:orientation="vertical"
               android:padding="10dp"
-              android:background="#ff0000">
+              android:weightSum="1"
+              android:background="@color/colorAccent">
 
     <name.peterbukhal.android.licenseplateview.licenseplateview.LicensePlateView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="wrap_content"
+        android:layout_margin="2dp"
+        />
 
+    <name.peterbukhal.android.licenseplateview.licenseplateview.LicensePlateView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="2dp"/>
+
+    <name.peterbukhal.android.licenseplateview.licenseplateview.LicensePlateView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="2dp"/>
 </LinearLayout>
