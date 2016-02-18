@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
@@ -16,6 +15,12 @@ import android.view.View;
  * @author Peter Bukhal (petr@taxik.ru)
  */
 public class LicensePlateView extends View {
+
+    public enum PlateType {
+        STANDART, YELLOW
+    }
+
+    private PlateType plateType;
 
     public LicensePlateView(Context context) {
         super(context);
@@ -44,16 +49,11 @@ public class LicensePlateView extends View {
     private void init() {
         typeface = Typeface.createFromAsset(getContext().getAssets(), "fonts/RoadNumbers2.0.ttf");
 
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(1.0f);
-        paint.setAntiAlias(true);
-        paint.setColor(Color.BLACK);
+        plateType = PlateType.YELLOW;
     }
 
-    private Paint paint = new Paint();
-    private RectF outerBounds = new RectF();
-    private RectF innerBounds = new RectF();
-    private RectF innerBounds2 = new RectF();
+    private static final Paint paint = new Paint();
+    private static final RectF rectF = new RectF();
 
     private float mWidth;
     private float mHeight;
@@ -67,35 +67,15 @@ public class LicensePlateView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        float textSize1, textSize2, textSize3;
-
         mWidth = getWidth();
         mHeight = mWidth * 0.2153f;
 
         drawFrame(canvas);
         drawHoles(canvas);
+        drawText(canvas);
 
-        // text
-        textSize1 = mHeight * 0.75f;
-        textSize2 = mHeight * 1f;
-        textSize3 = mHeight * 0.22f;
-
-        paint.setTextSize(textSize3);
-        paint.setStyle(Paint.Style.FILL);
-        canvas.drawText("RUS", (mWidth - (mWidth * 0.265f)), (mHeight - (mHeight * 0.13f)), paint);
-
-        paint.setTextSize(textSize2);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setTypeface(typeface);
-        canvas.drawText("x666xx", (mHeight * 0.4f), (mHeight - (mHeight * 0.19f)), paint);
-
-        //
-        paint.setTextSize(textSize1);
-        paint.setStyle(Paint.Style.FILL);
-        paint.setTypeface(typeface);
-        canvas.drawText("666", (mWidth - (mWidth * 0.28f)), (mHeight - (mHeight * 0.365f)), paint);
-
-        drawFlag(canvas);
+        if (plateType == PlateType.STANDART)
+            drawFlag(canvas);
     }
 
     private void drawFrame(Canvas canvas) {
@@ -106,31 +86,38 @@ public class LicensePlateView extends View {
 
         // outer rect
         outerBoundsPadding = 0.0f;
-        outerBounds.set(outerBoundsPadding, outerBoundsPadding, (mWidth - outerBoundsPadding), (mHeight - outerBoundsPadding));
+        rectF.set(outerBoundsPadding, outerBoundsPadding, (mWidth - outerBoundsPadding), (mHeight - outerBoundsPadding));
 
-        paint.setStyle(Paint.Style.FILL_AND_STROKE);
-        paint.setColor(Color.WHITE);
+        paint.reset();
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor((plateType == PlateType.STANDART) ? Color.WHITE : Color.YELLOW);
         paint.setStrokeWidth(0);
-        canvas.drawRoundRect(outerBounds, cornerRadius, cornerRadius, paint);
+        paint.setAntiAlias(true);
+        canvas.drawRoundRect(rectF, cornerRadius, cornerRadius, paint);
 
         // inner rect
-        innerBoundsPadding = mHeight * 0.04f ;
-        innerBounds.set(innerBoundsPadding, innerBoundsPadding, (mWidth - innerBoundsPadding), (mHeight - innerBoundsPadding));
+        innerBoundsPadding = mHeight * 0.04f;
+        rectF.set(innerBoundsPadding, innerBoundsPadding, (mWidth - innerBoundsPadding), (mHeight - innerBoundsPadding));
 
+        paint.reset();
         paint.setStrokeWidth(innerBoundsStrokeWidth);
         paint.setStyle(Paint.Style.STROKE);
         paint.setColor(Color.BLACK);
-        canvas.drawRoundRect(innerBounds, cornerRadius, cornerRadius, paint);
+        paint.setAntiAlias(true);
+        canvas.drawRoundRect(rectF, cornerRadius, cornerRadius, paint);
 
         //
-        innerBounds2.set(mWidth - (mWidth * 0.3f), innerBoundsPadding, (mWidth - innerBoundsPadding), (mHeight - innerBoundsPadding));
+        rectF.set(mWidth - (mWidth * 0.3f), innerBoundsPadding, (mWidth - innerBoundsPadding), (mHeight - innerBoundsPadding));
 
+        paint.reset();
         paint.setStrokeWidth(innerBoundsStrokeWidth);
         paint.setStyle(Paint.Style.STROKE);
-        canvas.drawRoundRect(innerBounds2, cornerRadius, cornerRadius, paint);
+        paint.setAntiAlias(true);
+        paint.setColor(Color.BLACK);
+        canvas.drawRoundRect(rectF, cornerRadius, cornerRadius, paint);
 
-        innerBounds2.set(innerBoundsPadding, innerBoundsPadding, mWidth - (mWidth * 0.3f), (mHeight - innerBoundsPadding));
-        canvas.drawRoundRect(innerBounds2, cornerRadius, cornerRadius, paint);
+        rectF.set(innerBoundsPadding, innerBoundsPadding, mWidth - (mWidth * 0.3f), (mHeight - innerBoundsPadding));
+        canvas.drawRoundRect(rectF, cornerRadius, cornerRadius, paint);
 
         paint.setStyle(Paint.Style.FILL);
         canvas.drawCircle(mWidth - (mWidth * 0.3f), (innerBoundsPadding * 1.75f), innerBoundsPadding, paint);
@@ -143,9 +130,40 @@ public class LicensePlateView extends View {
         radius = mHeight * 0.0625f / 2;
         padding = mWidth * 0.038461f;
 
-        paint.setStrokeWidth(1.0f);
+        paint.reset();
+        paint.setStyle(Paint.Style.FILL);
+        paint.setColor(Color.BLACK);
+        paint.setAntiAlias(true);
         canvas.drawCircle(padding, (mHeight / 2.0f), radius, paint);
         canvas.drawCircle((mWidth - padding), (mHeight / 2.0f), radius, paint);
+    }
+
+    private void drawText(Canvas canvas) {
+        //
+        paint.reset();
+        paint.setColor(Color.BLACK);
+        paint.setAntiAlias(true);
+        paint.setTextSize(mHeight * 0.22f);
+        paint.setStyle(Paint.Style.FILL);
+        canvas.drawText("RUS", (mWidth - (mWidth * 0.265f)), (mHeight - (mHeight * 0.13f)), paint);
+
+        //
+        paint.reset();
+        paint.setColor(Color.BLACK);
+        paint.setAntiAlias(true);
+        paint.setTextSize(mHeight * 1f);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setTypeface(typeface);
+        canvas.drawText("xx666", (mHeight * 0.4f), (mHeight - (mHeight * 0.19f)), paint);
+
+        //
+        paint.reset();
+        paint.setColor(Color.BLACK);
+        paint.setAntiAlias(true);
+        paint.setTextSize(mHeight * 0.75f);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setTypeface(typeface);
+        canvas.drawText("78", (mWidth - (mWidth * 0.28f)), (mHeight - (mHeight * 0.365f)), paint);
     }
 
     private void drawFlag(Canvas canvas) {
@@ -158,7 +176,6 @@ public class LicensePlateView extends View {
         x2 = (mWidth - (mWidth * 0.1f));
         y2 = (mHeight - (mHeight * 0.12f));
 
-        RectF rectF = new RectF();
         rectF.set(x1, y1, x2, y2);
 
         float radius = mHeight * 0.02f;
