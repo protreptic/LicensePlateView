@@ -1,12 +1,15 @@
 package name.peterbukhal.android.licenseplate;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.StringBuilderPrinter;
 import android.view.View;
 
 /**
@@ -43,18 +46,41 @@ public class LicensePlateView extends View {
     }
 
     private void initAttrs(AttributeSet attrs, int defStyleAttr) {
-        if (attrs != null)
+        if (attrs != null) {
+            TypedArray typedArray = null;
+
             try {
+                typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.LicensePlateView, defStyleAttr, 0);
 
+                setCarNumber(typedArray.getString(R.styleable.LicensePlateView_car_number));
             } finally {
-
+                if (typedArray != null) {
+                    typedArray.recycle();
+                }
             }
+        }
     }
 
     private void init() {
         typeface = Typeface.createFromAsset(getContext().getAssets(), "fonts/RoadNumbers2.0.ttf");
 
         plateType = PlateType.STANDART;
+    }
+
+    private String mCarNumber;
+
+    public void setCarNumber(String carNumber) {
+        if (TextUtils.isEmpty(carNumber)) {
+            mCarNumber = "o000oo000";
+        } else {
+            mCarNumber = carNumber;
+        }
+
+        invalidate();
+    }
+
+    public String getCarNumber() {
+        return mCarNumber;
     }
 
     private static final Paint paint = new Paint();
@@ -103,7 +129,7 @@ public class LicensePlateView extends View {
         canvas.drawRoundRect(rectF, cornerRadius, cornerRadius, paint);
 
         // inner rect
-        innerBoundsPadding = mHeight * 0.04f;
+        innerBoundsPadding = mHeight * 0.035f;
         rectF.set(innerBoundsPadding, innerBoundsPadding, (int) (mWidth - innerBoundsPadding), (int) (mHeight - innerBoundsPadding));
 
         paint.reset();
@@ -160,7 +186,7 @@ public class LicensePlateView extends View {
         paint.setTextSize(mHeight * 1f);
         paint.setStyle(Paint.Style.FILL);
         paint.setTypeface(typeface);
-        canvas.drawText("a460ca", (mHeight * 0.32f), (mHeight - (mHeight * 0.19f)), paint);
+        canvas.drawText(mCarNumber.substring(0, 6), (mHeight * 0.28f), (mHeight - (mHeight * 0.19f)), paint);
 
         //
         paint.reset();
@@ -169,7 +195,7 @@ public class LicensePlateView extends View {
         paint.setTextSize(mHeight * 0.75f);
         paint.setStyle(Paint.Style.FILL);
         paint.setTypeface(typeface);
-        canvas.drawText("134", (mWidth - (mWidth * 0.28f)), (mHeight - (mHeight * 0.365f)), paint);
+        canvas.drawText(mCarNumber.substring(6, mCarNumber.length() > 8 ? 9 : 8), (mWidth - (mWidth * 0.28f)), (mHeight - (mHeight * 0.365f)), paint);
     }
 
     private void drawFlag(Canvas canvas) {
